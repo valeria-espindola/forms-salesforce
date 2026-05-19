@@ -21,9 +21,9 @@ a paso.
    que Vercel pueda leer el fork.
 3. **En Vercel: Add New → Project → seleccioná el fork.** Vercel detecta
    solo que es Nuxt 3.
-4. **URL temporal**: sugerí algo simple como `techo.vercel.app` o
+4. **URL temporal**: sugerí algo simple como `donaciones.vercel.app` o
    `<nombre-org>-donaciones.vercel.app`. Explicá que el dominio final
-   (`donar.techo.org`, etc.) se conecta después.
+   (`donar.miorg.org`, etc.) se conecta después.
 5. **Pedí las 5 variables de entorno y guardalas en el proyecto antes
    del primer deploy.** No deployees sin ellas: el sitio levanta pero
    los formularios responden con `"Falta la variable de entorno
@@ -79,8 +79,7 @@ correctamente con PKCE y las URLs del Connected App ya autorizadas.
 
 - **`INVALID_FIELD: No such column 'Foo__c' on entity Contact`**
   El backend está apuntando a una org de Salesforce que **no tiene** ese
-  campo personalizado. Pasa típicamente cuando se prueba el flow de
-  Reciduca contra el SF de Techo. Soluciones:
+  campo personalizado. Soluciones:
   - Si era una prueba, ignoralo o cambiá las env vars al SF correcto.
   - Si la org real efectivamente no tiene ese campo, editá
     `server/api/flow/<flow>.post.ts` y remové / renombrá el campo en

@@ -1,28 +1,22 @@
 <script setup lang="ts">
 /**
- * Flow: "actualizar-donacion-techo"
+ * Flow: "actualizar-donacion"
  *
- * Self-service link the org emails to existing donors. Pre-loads the
- * Opportunity by `oppId` and lets them update the amount and/or save a
- * new payment method. Both fields are independently optional from the
- * donor's perspective: leaving the payment area blank means "amount-only
- * update".
+ * Link de autoservicio que la org envía por mail a donantes existentes.
+ * Pre-carga la Opportunity por `oppId` y permite actualizar el monto
+ * y/o guardar un nuevo método de pago. Ambos campos son independientes:
+ * dejar el área de pago vacía significa "solo actualizar monto".
  *
- * URL: /flow/actualizar-donacion-techo/<id-de-oportunidad>
+ * URL: /flow/actualizar-donacion/<id-de-oportunidad>
  *
- * Naming convention: each flow's folder embeds the org name so the URL
- * shows which Salesforce org is being written to. If you set up the
- * boilerplate for a second org, copy this directory to
- * `actualizar-donacion-<org>` and tweak the copy / SF field map.
+ * Estructura:
+ *   - 1 paso visible (sin wizard chrome)
+ *   - AmountStep (monto libre, sin presets, sin frecuencia)
+ *   - PaymentMethodStep (no requerido — `:required="false"`)
  *
- * Compose-by-step shape:
- *   - 1 visible step (no wizard chrome)
- *   - AmountStep  (custom amount, no presets, no frequency picker)
- *   - PaymentMethodStep (not required — `:required="false"`)
- *
- * If you want to turn this into a 2-step wizard, replace the inline layout
- * with `<MultiStepFlow :steps="2">` and split the children across
- * `#step-1` and `#step-2` slots.
+ * Si querés convertirlo en un wizard de 2 pasos, reemplazá el layout
+ * inline con `<MultiStepFlow :steps="2">` y dividí los children en
+ * slots `#step-1` y `#step-2`.
  */
 import { computed, onMounted, ref } from "vue";
 import type { FlowRecord } from "~/server/utils/salesforce";
@@ -33,7 +27,7 @@ import type { PaymentData } from "~/components/steps/PaymentMethodStep.vue";
 import { formatAmountEsAR } from "~/composables/formatters";
 
 definePageMeta({
-  flowTitle: "Actualizar donación — TECHO (autoservicio)",
+  flowTitle: "Actualizar donación (autoservicio)",
   flowDescription:
     "Link que la org manda por mail a un donante para que cambie monto y/o método de pago. Requiere un Id de Oportunidad real de Salesforce en la URL.",
 });
@@ -80,7 +74,7 @@ async function load() {
       error: boolean;
       message?: string;
       data?: FlowRecord;
-    }>(`/api/flow/actualizar-donacion-techo/${oppId.value}`, {
+    }>(`/api/flow/actualizar-donacion/${oppId.value}`, {
       cache: "no-store",
     });
     if (json.error || !json.data) {
@@ -136,7 +130,7 @@ async function handleSubmit() {
     if (payment.value.token) body.paymentMethodToken = payment.value.token;
 
     const json = await $fetch<{ error: boolean; message?: string }>(
-      `/api/flow/actualizar-donacion-techo/${oppId.value}`,
+      `/api/flow/actualizar-donacion/${oppId.value}`,
       { method: "POST", body },
     );
     if (json.error) {
@@ -145,7 +139,7 @@ async function handleSubmit() {
       );
     }
 
-    const parts = ["¡Gracias por seguir siendo parte de esta comunidad que elige hacer!"];
+    const parts = ["¡Gracias por seguir siendo parte!"];
     successMessage.value = parts.join(" ");
   } catch (error) {
     errorMessage.value =
@@ -177,10 +171,7 @@ onMounted(load);
           Actualizá tu donación
         </h1>
         <p class="text-sm leading-relaxed text-foreground">
-          Es una alegría que estés acá. Tu decisión de actualizar tus datos es lo que nos permite seguir construyendo viviendas y acompañando a más familias que hoy viven en barrios populares.
-        </p>
-        <p class="text-sm leading-relaxed text-foreground">
-          Con tu apoyo, seguimos trabajando para que ninguna familia en Argentina viva en un piso de tierra.
+          Es una alegría que estés acá. Tu decisión de actualizar tus datos nos permite seguir trabajando por nuestra misión.
         </p>
         <p class="text-sm leading-relaxed text-foreground">
           Si hoy tenés la posibilidad de aumentar tu donación, nos ayudás a escalar nuestro trabajo.

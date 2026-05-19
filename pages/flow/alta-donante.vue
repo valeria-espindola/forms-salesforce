@@ -1,28 +1,24 @@
 <script setup lang="ts">
 /**
- * Flow: "alta-techo" — Techo donor onboarding.
+ * Flow: "alta-donante" — Donor onboarding (2 steps).
  *
- * URL: /flow/alta-techo
+ * URL: /flow/alta-donante
  *
- * Mirrors the legacy 2-step `pages/form/techo.vue` from `debi-forms`:
- *   Step 1 — personal data (name, surname, DOB, email, phone, country, prov)
- *   Step 2 — amount + frequency, payment method, DNI, terms + "¿Ya sos donante?"
+ * Wizard de 2 pasos para alta de donantes:
+ *   Step 1 — datos personales (nombre, apellido, fecha nac., email, tel, país, provincia)
+ *   Step 2 — monto + frecuencia, método de pago, DNI, términos + "¿Ya sos donante?"
  *
- * The anti-cart-abandonment pattern from debi-forms is preserved:
- * `onStepAdvance` POSTs the personal data after step 1 so the Contact is
- * created in Salesforce even if the donor never reaches the payment step.
+ * El patrón anti-abandono se preserva: `onStepAdvance` hace POST de los
+ * datos personales después del paso 1 para crear el Contact en Salesforce
+ * aunque el donante nunca llegue al paso de pago.
  *
- * Naming convention: page filenames embed the org name (e.g.
- * `alta-techo`, `alta-reciduca`) so the URL itself tells you which
- * Salesforce org receives the data. Renaming this file renames the
- * route — the matching server handler is in
- * `server/api/flow/alta-techo.post.ts`.
+ * Para personalizar: cambiá colores en `assets/css/main.css`, editá el
+ * copy acá, cambiá los montos preset, agregá o quitá steps. Para agregar
+ * un campo nuevo:
+ *   - poné un `<FieldText>` junto a un step (no requiere conocer el engine),
+ *   - o creá un archivo nuevo en `components/steps/` e importalo.
  *
- * To customize: change colors in `assets/css/main.css`, edit copy here,
- * change the preset amounts, swap which steps you include. Adding a new
- * field is one of:
- *   - drop a `<FieldText>` next to a step (no engine knowledge needed),
- *   - or create a new file in `components/steps/` and import it.
+ * El endpoint del servidor está en `server/api/flow/alta-donante.post.ts`.
  */
 import { computed, ref } from "vue";
 import MultiStepFlow from "~/components/flow/MultiStepFlow.vue";
@@ -42,6 +38,7 @@ import AcceptanceStep, {
   type AcceptanceData,
 } from "~/components/steps/AcceptanceStep.vue";
 import FieldSelect from "~/components/fields/FieldSelect.vue";
+import FlowHeader from "~/components/flow/FlowHeader.vue";
 import { useFlowState } from "~/composables/useFlowState";
 import { transformBirthDateToISO } from "~/composables/formatters";
 
@@ -50,12 +47,12 @@ import { transformBirthDateToISO } from "~/composables/formatters";
 // auto-render an onboarding list, so changing them here is enough —
 // no need to also edit a separate manifest.
 definePageMeta({
-  flowTitle: "Alta de donante — TECHO",
+  flowTitle: "Alta de donante",
   flowDescription:
     "Wizard de 2 pasos: datos personales del donante y, después, monto + tarjeta o CBU + DNI + términos.",
 });
 
-useHead({ title: "Sumate a TECHO" });
+useHead({ title: "Sumate como donante" });
 
 const route = useRoute();
 const campaign = computed(() => {
@@ -103,7 +100,7 @@ async function onStepAdvance(stepIndex: number) {
     error: boolean;
     message?: string;
     data?: { contactId: string };
-  }>("/api/flow/alta-techo", {
+  }>("/api/flow/alta-donante", {
     method: "POST",
     body: {
       stage: "personal",
@@ -126,7 +123,7 @@ async function onSubmit() {
   errorMessage.value = null;
   alreadyDonorError.value = null;
   if (!state.value.alreadyDonor) {
-    alreadyDonorError.value = "Contanos si ya sos donante de TECHO.";
+    alreadyDonorError.value = "Contanos si ya sos donante.";
     return;
   }
   if (!contactId.value) {
@@ -162,7 +159,7 @@ async function onSubmit() {
         res.message ?? "No pudimos completar tu alta. Intentá de nuevo.",
       );
     }
-    successMessage.value = "¡Gracias por sumarte a TECHO!";
+    successMessage.value = "¡Gracias por sumarte!";
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : "No pudimos completar tu alta.";
@@ -174,16 +171,11 @@ async function onSubmit() {
 
 <template>
   <main class="mx-auto w-full max-w-xl px-4 py-5 sm:px-6">
-    <header class="mb-5 space-y-1.5">
-      <h1 class="text-lg font-semibold text-foreground sm:text-xl">
-        Sumate a TECHO
-      </h1>
-      <p class="text-sm leading-relaxed text-muted-foreground">
-        Tu donación nos ayuda a construir, en conjunto con familias de
-        comunidades populares, mejores condiciones de vida en barrios
-        afectados por la pobreza.
-      </p>
-    </header>
+    <!-- Para agregar tu logo: pone el archivo en public/logos/ y agregá la prop logo="/logos/tu-logo.png" -->
+    <FlowHeader
+      title="Sumate como donante"
+      description="Tu donación nos permite seguir trabajando por nuestra misión. Completá el formulario para sumarte."
+    />
 
     <div
       v-if="successMessage"
@@ -222,7 +214,7 @@ async function onSubmit() {
           v-model="state.amount"
           :step-index="2"
           title="Elegí cuánto y cómo"
-          description="Tu donación llega entera al programa de Techo."
+          description="Tu donación llega entera a nuestros programas."
           :presets="[12000, 18000, 25000]"
           :frequencies="[
             { value: 'Mensual', label: 'Todos los meses' },
@@ -256,7 +248,7 @@ async function onSubmit() {
           <template #extra>
             <FieldSelect
               :model-value="state.alreadyDonor"
-              label="¿Ya sos donante de TECHO?"
+              label="¿Ya sos donante?"
               :options="[
                 { value: 'SI', label: 'Sí' },
                 { value: 'NO', label: 'No' },

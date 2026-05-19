@@ -7,24 +7,24 @@ import {
 import type { DebiPaymentToken } from "~/composables/useDebiClient";
 
 /**
- * Server endpoint for the "alta-techo" flow.
+ * Server endpoint for the "alta-donante" flow.
  *
- * Accepts two stages:
+ * Acepta dos stages:
  *
- *   `stage: "personal"` (after step 1)
- *     Creates or matches a Contact by email. Returns `{ contactId }`.
- *     This is the anti-cart-abandonment write — even if the donor never
- *     reaches the payment step, the org keeps the Contact record.
+ *   `stage: "personal"` (después del paso 1)
+ *     Crea o matchea un Contact por email. Devuelve `{ contactId }`.
+ *     Este es el write anti-abandono — aunque el donante nunca llegue
+ *     al paso de pago, la org conserva el registro del Contact.
  *
- *   `stage: "finalize"` (after step 2 / final submit)
- *     Tokenizes the payment method (already done client-side), then
- *     creates the donation chain: Payment Method → optional Recurring
- *     Donation → Opportunity. The Contact must already exist (its ID is
- *     echoed back from step 1).
+ *   `stage: "finalize"` (después del paso 2 / submit final)
+ *     Tokeniza el método de pago (ya hecho client-side), luego crea
+ *     la cadena de donación: Payment Method → Recurring Donation
+ *     opcional → Opportunity. El Contact ya debe existir (su ID viene
+ *     del paso 1).
  *
- * If your alta only needs a single submit (no per-step write), drop the
- * `stage: "personal"` branch and call `findOrCreateContact` from inside
- * `finalize`. The orchestrator's `onStepAdvance` hook is optional.
+ * Si tu alta solo necesita un submit (sin write por paso), quitá el
+ * branch `stage: "personal"` y llamá a `findOrCreateContact` desde
+ * `finalize`. El hook `onStepAdvance` del orquestador es opcional.
  */
 
 type PersonalBody = {
@@ -95,10 +95,9 @@ export default defineEventHandler(async (event) => {
         };
       }
 
-      // Techo-specific extras: write DNI + "alreadyDonor" to the
-      // Opportunity. If you want them on the Contact instead, move them
-      // to `extra.contact` and adjust `findOrCreateContact` to update an
-      // existing Contact when it matches.
+      // Campos extra: escribimos DNI + "alreadyDonor" en la Opportunity.
+      // Si los querés en el Contact, mové esto a `extra.contact` y ajustá
+      // `findOrCreateContact` para actualizar un Contact existente.
       const oppExtra: Record<string, string | number | null> = {};
       if (body.dni) {
         oppExtra["TCPagos__N_mero_de_identificaci_n__c"] = body.dni;

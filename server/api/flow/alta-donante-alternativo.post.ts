@@ -7,24 +7,21 @@ import {
 import type { DebiPaymentToken } from "~/composables/useDebiClient";
 
 /**
- * Server endpoint for the "alta-reciduca" flow.
+ * Server endpoint for the "alta-donante-alternativo" flow.
  *
- * Same two-stage shape as `/api/flow/alta-techo.post.ts`. The differences
- * with Techo are:
+ * Misma estructura de dos stages que `alta-donante.post.ts`. Las diferencias:
  *
- *   - The `phoneFixed` field is written onto the Contact under
- *     `Tel_fono_fijo__c`, a custom field that exists in Reciduca's
- *     Salesforce org. **If you point this endpoint at a different org**
- *     (e.g., you're using Techo's credentials to smoke-test the flow),
- *     remove the `Tel_fono_fijo__c` line below or Salesforce returns
- *     INVALID_FIELD and the response becomes a 422.
- *   - The DNI/CUIT goes onto the Opportunity under
- *     `TCPagos__N_mero_de_identificaci_n__c`, same as Techo.
+ *   - El campo `phoneFixed` se escribe en el Contact como `Tel_fono_fijo__c`,
+ *     un custom field. **Si tu org de Salesforce no tiene ese campo**,
+ *     quitá la línea `Tel_fono_fijo__c` abajo o Salesforce devuelve
+ *     INVALID_FIELD y la respuesta es un 422.
+ *   - El DNI/CUIT va a la Opportunity como
+ *     `TCPagos__N_mero_de_identificaci_n__c`.
  *
- * This file is intentionally close to `alta-techo.post.ts` — it would
- * be easy to factor out a shared `handleAlta` helper, but keeping them
- * as two thin files makes "borrar Reciduca" a single-file operation and
- * lets a future flow tweak its server logic without affecting Techo.
+ * Este archivo es intencionalmente similar a `alta-donante.post.ts` —
+ * sería fácil factorizar un helper compartido, pero mantenerlos como
+ * dos archivos independientes hace que "borrar el alternativo" sea
+ * una operación de un solo archivo.
  */
 
 type PersonalBody = {
@@ -44,11 +41,11 @@ type FinalizeBody = {
   campaign?: string | null;
 };
 
-type ReciducaBody = PersonalBody | FinalizeBody;
+type AltaAlternativoBody = PersonalBody | FinalizeBody;
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<ReciducaBody>(event);
+    const body = await readBody<AltaAlternativoBody>(event);
 
     if (body.stage === "personal") {
       const p = body.personal;

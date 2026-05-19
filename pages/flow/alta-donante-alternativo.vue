@@ -1,32 +1,28 @@
 <script setup lang="ts">
 /**
- * Flow: "alta-reciduca" — alta de donante con la forma de paso de Reciduca.
+ * Flow: "alta-donante-alternativo" — ejemplo alternativo de alta de donante.
  *
- * URL: /flow/alta-reciduca
+ * URL: /flow/alta-donante-alternativo
  *
- * Este flujo existe como **segundo ejemplo** dentro del repo (la entrega
- * para Techo se hace con `/flow/alta-techo`). Demuestra dos cosas que la
- * arquitectura tiene que poder absorber sin reescribir steps:
+ * Este flujo existe como **segundo ejemplo** dentro del repo. Demuestra
+ * variantes que la arquitectura soporta sin reescribir steps:
  *
  *   1. Orden diferente de pasos: acá el monto va PRIMERO (paso 1), después
  *      los datos personales (paso 2), y al final el método de pago + DNI
- *      (paso 3). Es la forma que tiene Reciduca en `debi-forms`.
+ *      (paso 3).
  *
  *   2. Validador distinto para identificación: usa `CUIT_OR_DNI` (acepta
  *      7-11 dígitos), no solo DNI estricto.
  *
  *   3. Selector de monto con `mode="select"` (dropdown), no botones:
- *      la presentación original en debi-forms usaba un `<select>` con
- *      labels descriptivos largos ("$76.600 mensual. Apadriná un/a
- *      joven.") que no caben bien como botones.
+ *      útil cuando los labels son largos y descriptivos.
  *
  * Como el Contact recién se puede crear cuando hay nombre/email (paso 2),
  * el `onStepAdvance` dispara la creación en `stepIndex === 2`, no en 1.
  * Esto muestra que el hook anti-abandono es per-flow, no global.
  *
  * Para quitar este flujo, borrá este archivo y
- * `server/api/flow/alta-reciduca.post.ts`. La ruta /flow/alta-reciduca
- * deja de existir en el próximo deploy.
+ * `server/api/flow/alta-donante-alternativo.post.ts`.
  */
 import { computed, ref } from "vue";
 import MultiStepFlow from "~/components/flow/MultiStepFlow.vue";
@@ -43,16 +39,17 @@ import IdentificationStep, {
   type IdentificationData,
 } from "~/components/steps/IdentificationStep.vue";
 import FieldText from "~/components/fields/FieldText.vue";
+import FlowHeader from "~/components/flow/FlowHeader.vue";
 import { useFlowState } from "~/composables/useFlowState";
 import { transformBirthDateToISO } from "~/composables/formatters";
 
 definePageMeta({
-  flowTitle: "Alta de donante — Reciduca (ejemplo)",
+  flowTitle: "Alta de donante (alternativo)",
   flowDescription:
     "Wizard de 3 pasos con otro orden: primero el monto (dropdown), después los datos personales y al final el método de pago + identificación.",
 });
 
-useHead({ title: "Vos también sos protagonista - Reciduca" });
+useHead({ title: "Sumate como donante" });
 
 const route = useRoute();
 const campaign = computed(() => {
@@ -98,7 +95,7 @@ async function onStepAdvance(stepIndex: number) {
     error: boolean;
     message?: string;
     data?: { contactId: string };
-  }>("/api/flow/alta-reciduca", {
+  }>("/api/flow/alta-donante-alternativo", {
     method: "POST",
     body: {
       stage: "personal",
@@ -153,7 +150,7 @@ async function onSubmit() {
         res.message ?? "No pudimos completar tu donación. Intentá de nuevo.",
       );
     }
-    successMessage.value = "¡Gracias por sumarte a Reciduca!";
+    successMessage.value = "¡Gracias por sumarte!";
   } catch (error) {
     errorMessage.value =
       error instanceof Error
@@ -167,15 +164,11 @@ async function onSubmit() {
 
 <template>
   <main class="mx-auto w-full max-w-xl px-4 py-5 sm:px-6">
-    <header class="mb-5 space-y-1.5">
-      <h1 class="text-lg font-semibold text-foreground sm:text-xl">
-        Vos También Sos Protagonista
-      </h1>
-      <p class="text-sm leading-relaxed text-muted-foreground">
-        Apadriná a un/a joven con una beca mensual y ayudanos a transformar
-        su futuro a través de la educación.
-      </p>
-    </header>
+    <!-- Para agregar tu logo: pone el archivo en public/logos/ y agregá la prop logo="/logos/tu-logo.png" -->
+    <FlowHeader
+      title="Sumate como donante"
+      description="Tu donación nos permite seguir trabajando por nuestra misión. Este es un ejemplo con 3 pasos y monto como dropdown."
+    />
 
     <div
       v-if="successMessage"

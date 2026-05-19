@@ -5,14 +5,13 @@ funcionando contra Salesforce de fábrica:
 
 | Flujo | URL | Para qué sirve |
 |---|---|---|
-| **Alta TECHO** | `/flow/alta-techo` | Wizard de 2 pasos: datos del donante y, después, monto + tarjeta/CBU + DNI. |
-| **Alta Reciduca** (ejemplo) | `/flow/alta-reciduca` | Wizard de 3 pasos con monto-primero, mostrado en formato dropdown. Sirve como segundo ejemplo de qué tan distinto puede ser un flow. |
-| **Actualizar donación** (autoservicio) | `/flow/actualizar-donacion-techo/<id-de-oportunidad>` | Link que la org manda por mail a un donante para que cambie monto y/o método de pago. |
+| **Alta de donante** | `/flow/alta-donante` | Wizard de 2 pasos: datos del donante y, después, monto + tarjeta/CBU + DNI. |
+| **Alta de donante (alternativo)** | `/flow/alta-donante-alternativo` | Wizard de 3 pasos con monto-primero, mostrado en formato dropdown. Sirve como segundo ejemplo de qué tan distinto puede ser un flow. |
+| **Actualizar donación** (autoservicio) | `/flow/actualizar-donacion/<id-de-oportunidad>` | Link que la org manda por mail a un donante para que cambie monto y/o método de pago. |
 
-> El nombre del archivo de cada flow incluye la org (`alta-techo`,
-> `alta-reciduca`, `actualizar-donacion-techo`). Esto vuelve obvio, en la
-> URL, qué Salesforce está recibiendo los datos. Cuando armes el repo
-> para una segunda org, agregás `alta-<org-nueva>` y listo.
+> Los nombres de los flows son genéricos para que cualquier organización
+> pueda usarlos directamente. Personalizá el copy, colores y logo en cada
+> archivo `.vue` según tu marca.
 
 ---
 
@@ -32,10 +31,10 @@ tenés cuenta en ambos, saltá al paso 4.
 4. En Vercel tocá **"Add New… → Project"** y elegí tu fork
    `<tu-usuario>/forms-salesforce`. Vercel detecta solo que es Nuxt 3 y
    pre-completa el build.
-5. **Elegí una URL preliminar**, por ejemplo `techo.vercel.app`. Si esa
-   ya está tomada, probá `techo-donaciones.vercel.app`. Esto se cambia
+5. **Elegí una URL preliminar**, por ejemplo `donaciones.vercel.app`. Si esa
+   ya está tomada, probá `mi-org-donaciones.vercel.app`. Esto se cambia
    después (Vercel → Project → Settings → Domains) cuando tengas el
-   dominio definitivo (ej. `donar.techo.org`).
+   dominio definitivo (ej. `donar.miorg.org`).
 6. **Pegá las 5 variables de entorno** y tocá *Deploy*. Las variables
    están explicadas en la sección [Variables de entorno](#variables-de-entorno).
 7. A los ~2 minutos el sitio está vivo. Andá a
@@ -98,15 +97,15 @@ el repo sin abrir un solo archivo.
 ### Paso 1 — Listado de flows
 
 Abrí `https://<tu-url>.vercel.app/`. Tenés que ver 3 tarjetas con el
-nombre y descripción de cada flow. Tocá *"Alta de donante — TECHO"*.
+nombre y descripción de cada flow. Tocá *"Alta de donante"*.
 
-### Paso 2 — Alta TECHO (front)
+### Paso 2 — Alta de donante (front)
 
 Completá el formulario con un email que reconozcas (vas a poder buscar
 el Contact en Salesforce después). Avanzá al paso 2, completá monto + una
 tarjeta de prueba (`4509 9535 6623 3704`, cualquier fecha futura, cualquier
 CVV de 3 dígitos), DNI y tildá los términos. Tocá *Donar*. Si todo va bien
-vas a ver *"¡Gracias por sumarte a TECHO!"* en verde.
+vas a ver *"¡Gracias por sumarte!"* en verde.
 
 Andá a tu Salesforce: tenés que ver el nuevo Contact con su Opportunity
 linkeada, su Recurring Donation, y un `TCPagos__Payment_Method__c` con
@@ -116,7 +115,7 @@ el id de Debi (`pm_test_*`).
 
 Copiá el `Id` de esa Oportunidad recién creada (Salesforce te lo muestra
 en la URL, son los 18 caracteres después del último `/`). Abrí
-`https://<tu-url>.vercel.app/flow/actualizar-donacion-techo/<ese-id>`.
+`https://<tu-url>.vercel.app/flow/actualizar-donacion/<ese-id>`.
 Tenés que ver tu monto actual; cambialo y guardalo. La Oportunidad y la
 Recurring Donation se actualizan en Salesforce.
 
@@ -126,8 +125,8 @@ Cada flow expone un endpoint en `/api/flow/<nombre>`. Es la misma
 respuesta que recibe el formulario, así que sirve para depurar:
 
 ```bash
-# Crear un Contact (etapa "personal" del alta de Techo)
-curl -X POST https://<tu-url>.vercel.app/api/flow/alta-techo \
+# Crear un Contact (etapa "personal" del alta)
+curl -X POST https://<tu-url>.vercel.app/api/flow/alta-donante \
   -H "Content-Type: application/json" \
   -d '{
     "stage": "personal",
@@ -143,7 +142,7 @@ curl -X POST https://<tu-url>.vercel.app/api/flow/alta-techo \
   }'
 
 # GET de la oportunidad (datos que carga la pantalla de autoservicio)
-curl https://<tu-url>.vercel.app/api/flow/actualizar-donacion-techo/<oppId>
+curl https://<tu-url>.vercel.app/api/flow/actualizar-donacion/<oppId>
 ```
 
 Si algo falla, el JSON de respuesta trae `error: true` y `message` con el
@@ -162,15 +161,15 @@ reutilizables.
 
 ```
 pages/flow/
-├── alta-techo.vue                                    ← UI de Techo
-├── alta-reciduca.vue                                 ← UI de Reciduca
-└── actualizar-donacion-techo/
+├── alta-donante.vue                                  ← Alta de 2 pasos
+├── alta-donante-alternativo.vue                      ← Alta de 3 pasos (ejemplo)
+└── actualizar-donacion/
     └── [oppId].vue                                   ← UI del autoservicio
 
 server/api/flow/
-├── alta-techo.post.ts                                ← backend de Techo
-├── alta-reciduca.post.ts                             ← backend de Reciduca
-└── actualizar-donacion-techo/
+├── alta-donante.post.ts                              ← backend del alta
+├── alta-donante-alternativo.post.ts                  ← backend alternativo
+└── actualizar-donacion/
     ├── [oppId].get.ts                                ← carga la oportunidad
     └── [oppId].post.ts                               ← envía cambios
 
@@ -203,7 +202,7 @@ guardar en Salesforce, agregás también `server/api/flow/<nombre>.post.ts`.
 Ejemplo mínimo (un flow de "actualizar monto" en 25 líneas):
 
 ```vue
-<!-- pages/flow/upgrade-techo/[oppId].vue -->
+<!-- pages/flow/upgrade/[oppId].vue -->
 <script setup lang="ts">
 import { ref } from "vue";
 import AmountStep, { type AmountData } from "~/components/steps/AmountStep.vue";
@@ -224,7 +223,7 @@ const paymentRef = ref<InstanceType<typeof PaymentMethodStep> | null>(null);
 async function submit() {
   if (!(await amountRef.value?.validate())?.ok) return;
   if (!(await paymentRef.value?.validate())?.ok) return;
-  await $fetch(`/api/flow/upgrade-techo/${oppId}`, {
+  await $fetch(`/api/flow/upgrade/${oppId}`, {
     method: "POST",
     body: {
       amount: state.value.amount.value,
@@ -246,7 +245,7 @@ async function submit() {
 Y un endpoint que llama a `submitFlow()`:
 
 ```ts
-// server/api/flow/upgrade-techo/[oppId].post.ts
+// server/api/flow/upgrade/[oppId].post.ts
 import { submitFlow } from "~/server/utils/salesforce";
 
 export default defineEventHandler(async (event) => {
@@ -260,7 +259,7 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
-La ruta `/flow/upgrade-techo/<oppId>` queda viva en el próximo deploy.
+La ruta `/flow/upgrade/<oppId>` queda viva en el próximo deploy.
 
 > **El template "evoluciona" sumando archivos, no editando un motor
 > central.** Si en un futuro Debi (u otra fuente) publica una nueva
@@ -312,7 +311,7 @@ con un `<iframe>`. La cabecera CSP queda configurada en `nuxt.config.ts`:
 
 ```html
 <iframe
-  src="https://<tu-url>.vercel.app/flow/alta-techo"
+  src="https://<tu-url>.vercel.app/flow/alta-donante"
   style="width: 100%; max-width: 480px; height: 720px; border: 0;"
   loading="lazy"
 ></iframe>
@@ -323,7 +322,7 @@ Por defecto **cualquier sitio puede embeber tus formularios**
 `nuxt.config.ts` y cambiá el `*` por la lista, p.ej.:
 
 ```ts
-"Content-Security-Policy": "frame-ancestors https://techo.org https://www.techo.org",
+"Content-Security-Policy": "frame-ancestors https://miorg.org https://www.miorg.org",
 ```
 
 ### Cosas a tener en cuenta
@@ -350,9 +349,9 @@ npm run dev
 ```
 
 - <http://localhost:3001/> — landing con los 3 flows.
-- <http://localhost:3001/flow/alta-techo>
-- <http://localhost:3001/flow/alta-reciduca>
-- <http://localhost:3001/flow/actualizar-donacion-techo/006XXXXXXXXXXXX>
+- <http://localhost:3001/flow/alta-donante>
+- <http://localhost:3001/flow/alta-donante-alternativo>
+- <http://localhost:3001/flow/actualizar-donacion/006XXXXXXXXXXXX>
 
 El puerto local es **3001** (no 3000) para que coexista con el
 asistente de onboarding central de Debi (también Nuxt 3) si lo corrés
@@ -381,9 +380,9 @@ en paralelo.
    - una `Opportunity` apuntando al Contact, al Payment Method y a la
      Recurring Donation.
 
-### Autoservicio (`actualizar-donacion-techo`)
+### Autoservicio (`actualizar-donacion`)
 
-1. `GET /api/flow/actualizar-donacion-techo/<oppId>` carga la
+1. `GET /api/flow/actualizar-donacion/<oppId>` carga la
    Opportunity y le devuelve al donante su monto actual.
 2. Cuando guarda los cambios, el back:
    - Si cambió método de pago, tokeniza con Debi y crea un
