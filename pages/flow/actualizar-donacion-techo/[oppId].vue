@@ -145,10 +145,7 @@ async function handleSubmit() {
       );
     }
 
-    const parts = ["Listo: actualizamos el monto de tu donación."];
-    if (payment.value.token) {
-      parts.push("También registramos dónde querés que cobremos.");
-    }
+    const parts = ["¡Gracias por seguir siendo parte de esta comunidad que elige hacer!"];
     successMessage.value = parts.join(" ");
   } catch (error) {
     errorMessage.value =
@@ -180,19 +177,23 @@ onMounted(load);
           Actualizá tu donación
         </h1>
         <p class="text-sm leading-relaxed text-foreground">
-          Te invitamos a actualizar los datos de tu donación porque el cobro
-          no se pudo completar. Por favor actualizalos para indicarnos
-          dónde querés que cobremos.
+          Es una alegría que estés acá. Tu decisión de actualizar tus datos es lo que nos permite seguir construyendo viviendas y acompañando a más familias que hoy viven en barrios populares.
+        </p>
+        <p class="text-sm leading-relaxed text-foreground">
+          Con tu apoyo, seguimos trabajando para que ninguna familia en Argentina viva en un piso de tierra.
+        </p>
+        <p class="text-sm leading-relaxed text-foreground">
+          Si hoy tenés la posibilidad de aumentar tu donación, nos ayudás a escalar nuestro trabajo.
         </p>
       </header>
 
       <AmountStep
         ref="amountStepRef"
         v-model="amount"
-        title="Monto de tu cuota"
+        title="Monto de tu donación"
         :description="
           previousQuotaText
-            ? `Tu cuota actual es ${previousQuotaText}. Podés mantenerla o ajustarla.`
+            ? `Tu aporte actual es de ${previousQuotaText}. Podés ingresar acá un nuevo monto:`
             : 'Ingresá un monto que te resulte cómodo.'
         "
         :presets="[]"
@@ -213,7 +214,8 @@ onMounted(load);
         v-model="payment"
         :required="false"
         :disabled="isSubmitting || !canSavePaymentMethod"
-        description="Si querés cambiar tarjeta o CBU, completá los datos abajo. Si solo querés actualizar el monto, podés dejar esta parte en blanco y tocar Guardar."
+        title="Actualizá tu medio de pago"
+        description="Si cambiaste de tarjeta o preferís adherir un CBU, podés completar los datos acá abajo. Si solo querés modificar el monto de tu donación, no hace falta completar esta parte."
       />
 
       <p v-if="errorMessage" class="text-sm text-red-600" role="alert">
