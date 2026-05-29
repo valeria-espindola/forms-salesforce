@@ -224,7 +224,7 @@ onMounted(load);
       <button
         type="submit"
         :disabled="isSubmitting"
-        class="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+        class="rounded-lg bg-[#00FF88] px-5 py-2 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
       >
         {{ isSubmitting ? "Guardando..." : "Reactivar mi compromiso" }}
       </button>
