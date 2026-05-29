@@ -16,13 +16,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #0092dd;
-  --primary-foreground: #ffffff;
+  --primary: #00FF88;
+  --primary-foreground: #000000;
   --muted: #f4f4f5;
   --muted-foreground: #52525b;
   --border: #e4e4e7;
   --input: #d4d4d8;
-  --ring: #0092dd;
+  --ring: #00FF88;
 
   --font-sans-stack: "Montserrat", ui-sans-serif, system-ui, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
@@ -33,13 +33,13 @@
 [data-theme="dark"] {
   --background: #0a0a0a;
   --foreground: #ededed;
-  --primary: #0092dd;
-  --primary-foreground: #ffffff;
+  --primary: #00FF88;
+  --primary-foreground: #000000;
   --muted: #27272a;
   --muted-foreground: #a1a1aa;
   --border: #3f3f46;
   --input: #52525b;
-  --ring: #0092dd;
+  --ring: #00FF88;
 }
 
 @theme inline {
