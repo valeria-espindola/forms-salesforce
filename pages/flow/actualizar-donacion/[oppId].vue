@@ -167,8 +167,8 @@ onMounted(load);
 
     <form v-else class="space-y-5" @submit.prevent="handleSubmit">
       <header class="space-y-1.5">
-        <!-- Logo: reemplazar src con el logo de la organización -->
-        <img src="" alt="Logo" class="h-10 w-auto" />
+        <!-- Logo DEBI -->
+        <img src="/images/logo-debi.png" alt="Logo DEBI" class="h-10 w-auto" />
         <h1 class="text-lg font-semibold text-foreground sm:text-xl">
           Actualizá tu donación
         </h1>
@@ -224,7 +224,7 @@ onMounted(load);
       <button
         type="submit"
         :disabled="isSubmitting"
-        class="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+        class="rounded-lg bg-[#00FF88] px-5 py-2 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
       >
         {{ isSubmitting ? "Guardando..." : "Reactivar mi compromiso" }}
       </button>
