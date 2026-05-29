@@ -167,8 +167,8 @@ onMounted(load);
 
     <form v-else class="space-y-5" @submit.prevent="handleSubmit">
       <header class="space-y-1.5">
-        <!-- Logo: reemplazar src con el logo de la organización -->
-        <img src="" alt="Logo" class="h-10 w-auto" />
+        <!-- Logo DEBI -->
+        <img src="/images/logo-debi.pdf" alt="Logo DEBI" class="h-10 w-auto" />
         <h1 class="text-lg font-semibold text-foreground sm:text-xl">
           Actualizá tu donación
         </h1>
